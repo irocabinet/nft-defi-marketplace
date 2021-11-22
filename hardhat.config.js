@@ -9,9 +9,6 @@ module.exports = {
     }
   },
   networks: {
-    localhost: {
-      url: "http://127.0.0.1:7545"
-    },
     mumbai: {
       url: process.env.MUMBAI_URL,
       accounts: [ process.env.PRIVATE_KEY ]

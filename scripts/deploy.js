@@ -13,8 +13,8 @@ async function main() {
   console.log("NFT contract deployed to:", nft.address);
 
   let config = `
-    export const dMartAddress = ${dMart.address}
-    export const nftAddress = ${nft.address}
+    export const dMartAddress = '${dMart.address}'
+    export const nftAddress = '${nft.address}'
   `;
   let data = JSON.stringify(config);
   fs.writeFileSync('config.js', JSON.parse(data));

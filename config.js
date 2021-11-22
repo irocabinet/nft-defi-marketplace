@@ -1,4 +1,4 @@
 
-    export const dMartAddress = 0x8e910B40ffCb1380827B13919fea619739533E37
-    export const nftAddress = 0x025319a162660cCce56f67322FbED317E62591be
+    export const dMartAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    export const nftAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
   
