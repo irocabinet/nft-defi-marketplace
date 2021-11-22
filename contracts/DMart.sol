@@ -38,7 +38,7 @@ contract DMart is ReentrancyGuard {
         return listingPrice;
     }
 
-    function mintMarketItem(address nftContract, uint256 tokenId, uint256 price) public payable nonReentrant {
+    function makeMarketItem(address nftContract, uint256 tokenId, uint256 price) public payable nonReentrant {
         require(price > 0, "Price must be a reasonable value");
         require(msg.value == listingPrice, "Price must be equal to listing price");
         _tokenIds.increment();

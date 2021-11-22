@@ -8,19 +8,23 @@ import { dMartAddress, nftAddress } from '../config'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import DMart from '../artifacts/contracts/DMart.sol/DMart.json'
 
-export default function Home() {
+export default function Dashboard() {
   const [nfts, setNfts] = useState([])
+  const [sold, setSold] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
   useEffect(() => {
     loadNfts()
   }, [])
 
   async function loadNfts() {
-    // to load - provider, tokenContract, marketContract, data for market items
-    const provider = new ethers.providers.JsonRpcProvider()
+    // to load - provider, tokenContract, marketContract, data for msg.sender items
+    const web3Modal = new Web3Modal()
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
     const tokenContract = new ethers.Contract(nftAddress, NFT.abi, provider)
-    const marketContract = new ethers.Contract(dMartAddress, DMart.abi, provider)
-    const data = await marketContract.marketTokens()
+    const marketContract = new ethers.Contract(dMartAddress, DMart.abi, signer)
+    const data = await marketContract.minted()
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -39,31 +43,17 @@ export default function Home() {
       console.log("nft: ", item)
       return item
     }))
-    console.log("items: ", items.length)
+    
+    const soldItems = items.filter(i => i.sold)
+    setSold(soldItems)
     setNfts(items)
     setLoadingState('loaded')
   }
 
-  async function buy(nft) {
-    
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
-
-    const contract = new ethers.Contract(dMartAddress, DMart.abi, signer)
-    const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
-    const txn  = await contract.sale(nftAddress, nft.tokenId, {
-      value: price
-    })
-
-    await txn.wait()
-    loadNfts()
-  }
-
-  if (loadingState === 'loaded' && !nfts.length) return (<h1 className='px-20 py-7 text-4x1 text-white'>No NFTs in marketplace</h1>)
+  if (loadingState === 'loaded' && !nfts.length) return (<h1 className='px-20 py-7 text-4x1 text-white'>You do not minted any NFTs (Products)</h1>)
   return (
-    <div className='flex justify-center'>
+    <div className='p-4'>
+        <h1 style={{fontSize: '20px', color:'white'}}>NFTs (Products) Minted</h1>
       <div className='px-4' style={{maxWidth: '1600px'}}>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4'>
           {
@@ -84,9 +74,6 @@ export default function Home() {
                     <p className='text-3x-1 mb-4 font-bold text-white'>
                       {nft.price} ETH
                     </p>
-                    <button className='w-full bg-red-500 text-white font-bold py-3 px-12 rounded' onClick={() => buy(nft)}>
-                      Buy
-                    </button>
                   </div>
                 </div>
             ))
